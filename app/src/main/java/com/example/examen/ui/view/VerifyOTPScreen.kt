@@ -1,4 +1,4 @@
-package com.example.upsidorkin.ui.view
+package com.example.examen.ui.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,8 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.examen.R
-import com.example.examen.ui.theme.UpSidorkinTheme
+import com.example.examen.ui.theme.ExamenTheme
 import com.example.examen.ui.viewModel.VerifyOTPViewModel
 
 @Composable
@@ -65,11 +64,7 @@ fun VerifyOTPScreen(
                     .clickable { navController.popBackStack() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.arrow),
-                    contentDescription = "Назад",
-                    tint = Color(0xFF555555)
-                )
+
             }
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -187,7 +182,7 @@ fun OtpCell(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun VerifyOTPScreenPreview() {
-    UpSidorkinTheme {
+    ExamenTheme {
         val navController = rememberNavController()
         VerifyOTPScreen(
             navController = navController,

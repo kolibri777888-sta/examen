@@ -31,8 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.examen.R
-import com.example.examen.ui.theme.UpSidorkinTheme
+import com.example.examen.ui.theme.ExamenTheme
 import com.example.examen.ui.viewModel.SignUpViewModel
 
 @Composable
@@ -86,11 +85,7 @@ fun RegisterScreen(
                     .clickable { navController.popBackStack() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.arrow),
-                    contentDescription = "Назад",
-                    tint = Color(0xFF555555)
-                )
+
             }
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -212,14 +207,13 @@ fun ShieldCheckbox(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
             .clickable { onCheckedChange(!checked) },
         contentAlignment = Alignment.Center
     ) {
-        Icon(painter = painterResource(id = R.drawable.shield), contentDescription = null, tint = Color.Black, modifier = Modifier.size(14.dp))
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RegisterScreenPreview() {
-    UpSidorkinTheme {
+    ExamenTheme {
         val navController = rememberNavController()
         RegisterScreen(navController = navController)
     }

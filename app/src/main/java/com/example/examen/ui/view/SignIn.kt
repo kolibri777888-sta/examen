@@ -28,8 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.examen.R
-import com.example.examen.ui.theme.UpSidorkinTheme
+import com.example.examen.ui.theme.ExamenTheme
 import com.example.examen.ui.viewModel.SignInViewModel
 import com.example.examen.data.model.SignInRequest
 
@@ -65,11 +64,7 @@ fun LoginScreen(
                     .clickable { navController.popBackStack() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.arrow),
-                    contentDescription = "Назад",
-                    tint = Color(0xFF555555)
-                )
+
             }
 
             Spacer(modifier = Modifier.height(30.dp)) // Такой же отступ как в Register
@@ -258,7 +253,7 @@ private fun StyledTextField(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun LoginScreenPreview() {
-    examenTheme {
+    ExamenTheme {
         val navController = rememberNavController()
         LoginScreen(navController = navController)
     }

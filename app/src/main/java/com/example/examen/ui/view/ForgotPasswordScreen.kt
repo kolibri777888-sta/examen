@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.examen.R
 import com.example.examen.ui.viewModel.ForgotPasswordViewModel
 
 @Composable
@@ -40,7 +39,6 @@ fun ForgotPasswordScreen(
                         .background(Color(0xFF48B2E7)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(painter = painterResource(id = R.drawable.email_icon), contentDescription = null, tint = Color.White) // Нужна иконка email
                 }
             },
             title = {
@@ -85,7 +83,6 @@ fun ForgotPasswordScreen(
                     .clickable { navController.popBackStack() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(painter = painterResource(id = R.drawable.arrow), contentDescription = null, tint = Color.Black)
             }
 
             Spacer(modifier = Modifier.height(30.dp))

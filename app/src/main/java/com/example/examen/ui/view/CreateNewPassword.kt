@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.examen.R
 import com.example.examen.ui.viewModel.NewPasswordViewModel
 
 @Composable
@@ -45,11 +44,7 @@ fun NewPasswordScreen(
                     .clickable { navController.popBackStack() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.arrow),
-                    contentDescription = null,
-                    tint = Color.Black
-                )
+
             }
 
             Spacer(modifier = Modifier.height(30.dp))
@@ -107,7 +102,6 @@ fun NewPasswordScreen(
             Spacer(modifier = Modifier.height(30.dp))
             Button(
                 onClick = {
-                    viewModel.changePassword(email.trim(), password.trim(), navController)
                 },
                 enabled = isValid && !viewModel.isLoading.value,
                 modifier = Modifier.fillMaxWidth().height(50.dp),

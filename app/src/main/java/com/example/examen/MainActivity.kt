@@ -1,4 +1,4 @@
-package com.example.upsidorkin
+package com.example.examen
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,9 +14,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.upsidorkin.data.UserSession
-import com.example.upsidorkin.ui.theme.UpSidorkinTheme
-import com.example.upsidorkin.ui.view.*
+import com.example.examen.ui.theme.ExamenTheme
+import com.example.examen.ui.view.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,85 +24,21 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            UpSidorkinTheme {
+            ExamenTheme {
                 val navController = rememberNavController()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "onboard1",
+                        startDestination = "register",
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable("onboard1") { Onboard1Screen(navController) }
-                        composable("onboard2") { Onboard2Screen(navController) }
-                        composable("onboard3") { Onboard3Screen(navController) }
-
                         composable("login") { LoginScreen(navController = navController) }
                         composable("register") { RegisterScreen(navController = navController) }
-
-                        composable("home") { HomeScreen(navController = navController) }
-
-                        // каталог по категории
-                        composable(
-                            route = "catalog/{category}",
-                            arguments = listOf(
-                                navArgument("category") { type = NavType.StringType }
-                            )
-                        ) { backStackEntry ->
-                            val category =
-                                backStackEntry.arguments?.getString("category") ?: "Outdoor"
-                            CatalogScreen(
-                                navController = navController,
-                                initialCategoryTitle = category
-                            )
-                        }
-
-                        // если где‑то нужен просто каталог без параметра
-                        composable("catalog") {
-                            CatalogScreen(
-                                navController = navController,
-                                initialCategoryTitle = "Outdoor"
-                            )
-                        }
-
-                        // экран избранного
-                        composable("favorite") {
-                            FavoriteScreen(navController = navController)
-                        }
-
-                        // экран деталей товара
-                        composable(
-                            route = "details/{productId}",
-                            arguments = listOf(
-                                navArgument("productId") { type = NavType.StringType }
-                            )
-                        ) { backStackEntry ->
-                            val productId = backStackEntry.arguments?.getString("productId") ?: ""
-                            DetailsScreen(
-                                navController = navController,
-                                productId = productId
-                            )
-                        }
-
-                        composable("profile") {
-                            val userId = UserSession.userId
-                            val accessToken = UserSession.accessToken
-
-                            if (userId != null && accessToken != null) {
-                                ProfileScreen(
-                                    navController = navController,
-                                    userId = userId,
-                                    accessToken = accessToken
-                                )
-                            } else {
-                                LoginScreen(navController = navController)
-                            }
-                        }
 
                         composable("forgot_password") {
                             ForgotPasswordScreen(navController)
                         }
-
                         composable(
                             route = "verifyOTP/{email}/{type}",
                             arguments = listOf(

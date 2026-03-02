@@ -105,7 +105,7 @@ val AppTypography = Typography(
 )
 
 @Composable
-fun UpSidorkinTheme(content: @Composable () -> Unit) {
+fun ExamenTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColorScheme,
         typography = AppTypography,
