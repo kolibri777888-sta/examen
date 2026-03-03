@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.examen.data.UserSession
 import com.example.examen.ui.theme.ExamenTheme
 import com.example.examen.ui.view.*
 
@@ -30,15 +31,36 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "register",
+                        startDestination = "onboard1",
                         modifier = Modifier.padding(innerPadding)
                     ) {
+                        composable("onboard1") { Onboard1Screen(navController) }
+                        composable("onboard2") { Onboard2Screen(navController) }
+                        composable("onboard3") { Onboard3Screen(navController) }
+
                         composable("login") { LoginScreen(navController = navController) }
                         composable("register") { RegisterScreen(navController = navController) }
+
+                        composable("home") { HomeScreen(navController = navController) }
+                        composable("profile") {
+                            val userId = UserSession.userId
+                            val accessToken = UserSession.accessToken
+
+                            if (userId != null && accessToken != null) {
+                                ProfileScreen(
+                                    navController = navController,
+                                    userId = userId,
+                                    accessToken = accessToken
+                                )
+                            } else {
+                                LoginScreen(navController = navController)
+                            }
+                        }
 
                         composable("forgot_password") {
                             ForgotPasswordScreen(navController)
                         }
+
                         composable(
                             route = "verifyOTP/{email}/{type}",
                             arguments = listOf(
