@@ -33,33 +33,28 @@ data class ProductDto(
 
 interface UserManagementService {
 
-    // ---------- РЕГИСТРАЦИЯ ----------
-    @Headers("apikey: $API_KEY", "Content-Type: application/json")
+
+    @Headers("apikey: ${com.example.examen.data.service.API_KEY}", "Content-Type: " +
+            "application/json")
     @POST("auth/v1/signup")
-    suspend fun signUp(@Body request: SignUpRequest): Response<SignUpResponse>
+    suspend fun signUp(@Body signUpRequest: SignUpRequest): Response<SignUpResponse>
 
-    // ---------- ВХОД ----------
-    @Headers("apikey: $API_KEY", "Content-Type: application/json")
+    @Headers("apikey: ${com.example.examen.data.service.API_KEY}", "Content-Type: application/json")
     @POST("auth/v1/token?grant_type=password")
-    suspend fun signIn(@Body request: SignInRequest): Response<SignInResponse>
+    suspend fun signIn(@Body signInRequest: SignInRequest): Response<SignInResponse>
 
-    // ---------- ВОССТАНОВЛЕНИЕ ПАРОЛЯ ----------
-    @Headers("apikey: $API_KEY", "Content-Type: application/json")
+    @Headers("apikey: ${com.example.examen.data.service.API_KEY}", "Content-Type: application/json")
+    @POST("auth/v1/verify")
+    suspend fun verifyOTP(@Body verifyOtpRequest: VerifyOtpRequest): Response<Any>
+
+    @Headers("apikey: ${com.example.examen.data.service.API_KEY}", "Content-Type: application/json")
     @POST("auth/v1/recover")
     suspend fun recoverPassword(@Body body: Map<String, String>): Response<Any>
 
-    // ---------- ПРОВЕРКА OTP ----------
-    @Headers("apikey: $API_KEY", "Content-Type: application/json")
-    @POST("auth/v1/verify")
-    suspend fun verifyOTP(@Body request: VerifyOtpRequest): Response<VerifyOtpResponse>
+    @Headers("apikey: ${com.example.examen.data.service.API_KEY}", "Content-Type: application/json")
+    @POST("change-password")
+    suspend fun changePassword(@Body body: ChangePasswordRequest): Response<Any>
 
-    // ---------- ИЗМЕНЕНИЕ ПАРОЛЯ ----------
-    @Headers("apikey: $API_KEY", "Content-Type: application/json")
-    @PUT("auth/v1/user")
-    suspend fun changePassword(
-        @Header("Authorization") authHeader: String,
-        @Body request: ChangePasswordRequest
-    ): Response<Any>
 
     @Headers("apikey: ${com.example.examen.data.service.API_KEY}")
     @GET("rest/v1/profiles")

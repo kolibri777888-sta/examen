@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.examen.R
 import com.example.examen.ui.theme.ExamenTheme
 import com.example.examen.ui.viewModel.VerifyOTPViewModel
 
@@ -37,7 +38,7 @@ fun VerifyOTPScreen(
 ) {
     var otpValue by remember { mutableStateOf(TextFieldValue("")) }
     val context = LocalContext.current
-    val otpLength = 6
+    val otpLength = 8
 
     LaunchedEffect(otpValue.text) {
         if (otpValue.text.length == otpLength) {
@@ -64,7 +65,11 @@ fun VerifyOTPScreen(
                     .clickable { navController.popBackStack() },
                 contentAlignment = Alignment.Center
             ) {
-
+                Icon(
+                    painter = painterResource(id = R.drawable.arrow),
+                    contentDescription = "Назад",
+                    tint = Color(0xFF555555)
+                )
             }
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -158,7 +163,7 @@ fun OtpCell(
 
     Box(
         modifier = Modifier
-            .width(48.dp)
+            .width(42.dp)
             .height(60.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(backgroundColor)
