@@ -3,4 +3,15 @@
 
     <!-- Общее -->
     <string name="app_name">examen</string>
+
+    <!-- Home -->
+    <string name="home_title">Главная</string>
+    <string name="search_hint">Поиск</string>
+    <string name="categories">Категории</string>
+    <string name="popular">Популярное</string>
+    <string name="see_all">Все</string>
+    <string name="promo">Акции</string>
+
+
+
 </resources>
