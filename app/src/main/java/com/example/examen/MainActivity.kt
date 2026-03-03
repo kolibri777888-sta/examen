@@ -31,12 +31,11 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = "onboard1",
+                        startDestination = "onboarding", // Изменено с "onboard1" на "onboarding"
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable("onboard1") { Onboard1Screen(navController) }
-                        composable("onboard2") { Onboard2Screen(navController) }
-                        composable("onboard3") { Onboard3Screen(navController) }
+                        // Единый экран онбординга вместо трех отдельных
+                        composable("onboarding") { OnboardingScreen(navController) }
 
                         composable("login") { LoginScreen(navController = navController) }
                         composable("register") { RegisterScreen(navController = navController) }

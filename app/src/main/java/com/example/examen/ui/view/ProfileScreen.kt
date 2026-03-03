@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import com.example.examen.data.model.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -148,24 +149,31 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
+                            // В ProfileScreen.kt, внутри onClick кнопки "Сохранить"
                             scope.launch {
                                 isLoading = true
                                 try {
-                                    val body = mapOf(
-                                        "firstname" to firstName,
-                                        "lastname" to lastName,
-                                        "address" to address,
-                                        "phone" to phone
+                                    // Используем конкретный DTO вместо Map
+                                    val updateDto = UpdateProfileDto(
+                                        firstname = firstName,
+                                        lastname = lastName,
+                                        address = address,
+                                        phone = phone,
+                                        photo = null // или avatarUri?.toString() если нужно сохранять фото
                                     )
+
                                     val resp = RetrofitInstance.userManagementService.updateProfile(
                                         authHeader = "Bearer $accessToken",
                                         userIdFilter = "eq.$userId",
-                                        body = body
+                                        body = updateDto
                                     )
+
                                     if (resp.isSuccessful) {
                                         isEditing = false
+                                        Toast.makeText(context, "Профиль обновлен", Toast.LENGTH_SHORT).show()
                                     } else {
-                                        errorText = "Ошибка сохранения: ${resp.code()}"
+                                        val errorBody = resp.errorBody()?.string()
+                                        errorText = "Ошибка сохранения: ${resp.code()} - $errorBody"
                                     }
                                 } catch (e: Exception) {
                                     errorText = "Не удалось сохранить профиль: ${e.localizedMessage}"
