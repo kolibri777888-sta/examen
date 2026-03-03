@@ -16,21 +16,6 @@ data class ProfileDto(
     val phone: String?
 )
 
-data class FavouriteDto(
-    val id: String?,
-    val product_id: String?,
-    val user_id: String?
-)
-
-data class ProductDto(
-    val id: String,
-    val title: String,
-    val category_id: String?,
-    val cost: Double,
-    val description: String,
-    val is_best_seller: Boolean?
-)
-
 interface UserManagementService {
 
 
