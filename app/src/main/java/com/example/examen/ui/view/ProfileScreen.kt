@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import com.example.examen.data.model.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -84,7 +83,7 @@ fun ProfileScreen(
             val service = RetrofitInstance.userManagementService
             val list: List<ProfileDto> = service.getProfile(
                 authHeader = "Bearer $accessToken",
-                userIdFilter = "eq.$userId"
+                userIdFilter = "eq.${userId}" // Явно указываем формат
             )
             val profile = list.firstOrNull()
             if (profile != null) {
@@ -149,31 +148,24 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
-                            // В ProfileScreen.kt, внутри onClick кнопки "Сохранить"
                             scope.launch {
                                 isLoading = true
                                 try {
-                                    // Используем конкретный DTO вместо Map
-                                    val updateDto = UpdateProfileDto(
-                                        firstname = firstName,
-                                        lastname = lastName,
-                                        address = address,
-                                        phone = phone,
-                                        photo = null // или avatarUri?.toString() если нужно сохранять фото
+                                    val body = mapOf(
+                                        "firstname" to firstName,
+                                        "lastname" to lastName,
+                                        "address" to address,
+                                        "phone" to phone
                                     )
-
                                     val resp = RetrofitInstance.userManagementService.updateProfile(
                                         authHeader = "Bearer $accessToken",
                                         userIdFilter = "eq.$userId",
-                                        body = updateDto
+                                        body = body
                                     )
-
                                     if (resp.isSuccessful) {
                                         isEditing = false
-                                        Toast.makeText(context, "Профиль обновлен", Toast.LENGTH_SHORT).show()
                                     } else {
-                                        val errorBody = resp.errorBody()?.string()
-                                        errorText = "Ошибка сохранения: ${resp.code()} - $errorBody"
+                                        errorText = "Ошибка сохранения: ${resp.code()}"
                                     }
                                 } catch (e: Exception) {
                                     errorText = "Не удалось сохранить профиль: ${e.localizedMessage}"
