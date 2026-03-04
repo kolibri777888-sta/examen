@@ -55,7 +55,47 @@ class MainActivity : ComponentActivity() {
                                 LoginScreen(navController = navController)
                             }
                         }
+                        // каталог по категории
+                        composable(
+                            route = "catalog/{category}",
+                            arguments = listOf(
+                                navArgument("category") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val category =
+                                backStackEntry.arguments?.getString("category") ?: "Outdoor"
+                            CatalogScreen(
+                                navController = navController,
+                                initialCategoryTitle = category
+                            )
+                        }
 
+                        // если где‑то нужен просто каталог без параметра
+                        composable("catalog") {
+                            CatalogScreen(
+                                navController = navController,
+                                initialCategoryTitle = "Outdoor"
+                            )
+                        }
+
+                        // экран избранного
+                        composable("favorite") {
+                            FavoriteScreen(navController = navController)
+                        }
+
+                        // экран деталей товара
+                        composable(
+                            route = "details/{productId}",
+                            arguments = listOf(
+                                navArgument("productId") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val productId = backStackEntry.arguments?.getString("productId") ?: ""
+                            DetailsScreen(
+                                navController = navController,
+                                productId = productId
+                            )
+                        }
                         composable("forgot_password") {
                             ForgotPasswordScreen(navController)
                         }
