@@ -38,55 +38,90 @@ import com.example.examen.data.service.ProfileDto
 import kotlinx.coroutines.launch
 import java.io.File
 
+/**
+ * Экран профиля пользователя
+ * Отображает информацию о пользователе, позволяет редактировать данные и загружать фото
+ *
+ * @param navController навигационный контроллер для переходов между экранами
+ * @param userId уникальный идентификатор пользователя из Supabase auth.users
+ * @param accessToken токен доступа для авторизации запросов к API
+ */
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
     userId: String,          // uuid из Supabase auth.users
     accessToken: String      // access_token из signIn/signUp
 ) {
+    // Контекст для доступа к системным сервисам и ресурсам
     val context = LocalContext.current
+    // Корутин скоуп для асинхронных операций
     val scope = rememberCoroutineScope()
 
+    // Состояние режима редактирования
     var isEditing by remember { mutableStateOf(false) }
 
+    // Состояния для полей профиля
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var avatarUri by remember { mutableStateOf<Uri?>(null) }
 
+    // Состояния загрузки и ошибок
     var isLoading by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
 
-    // ---------- камера ----------
+    // ---------- Камера и разрешения ----------
+    /**
+     * Создание временного URI для сохранения фото с камеры
+     * Используется FileProvider для безопасного доступа к файлам
+     */
     val tmpImageUri = remember {
-        val file = File(context.cacheDir, "profile_photo.jpg")
+        val file = File(context.cacheDir, "profile_photo.jpg") // Файл в кэше приложения
         FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
     }
+
+    /**
+     * Лаунчер для камеры - запускает приложение камеры и получает результат
+     */
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) avatarUri = tmpImageUri
+        if (success) avatarUri = tmpImageUri // Если фото сделано успешно, сохраняем URI
     }
+
+    /**
+     * Лаунчер для запроса разрешения на использование камеры
+     */
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) cameraLauncher.launch(tmpImageUri)
+        if (granted) cameraLauncher.launch(tmpImageUri) // Если разрешение получено, запускаем камеру
         else Toast.makeText(context, "Нужен доступ к камере", Toast.LENGTH_SHORT).show()
     }
+
+    /**
+     * Функция запуска камеры с проверкой разрешений
+     */
     fun launchCamera() {
         val ok = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED
         if (ok) cameraLauncher.launch(tmpImageUri) else permissionLauncher.launch(Manifest.permission.CAMERA)
     }
 
-    // ---------- загрузка профиля ----------
+    // ---------- Загрузка профиля ----------
+    /**
+     * Загрузка данных профиля при первом входе на экран
+     * Выполняется при изменении userId или accessToken
+     */
     LaunchedEffect(userId, accessToken) {
         isLoading = true
         try {
             val service = RetrofitInstance.userManagementService
+            // Запрос к API для получения профиля пользователя
             val list: List<ProfileDto> = service.getProfile(
                 authHeader = "Bearer $accessToken",
-                userIdFilter = "eq.${userId}" // Явно указываем формат
+                userIdFilter = "eq.${userId}" // Фильтр по ID пользователя
             )
             val profile = list.firstOrNull()
             if (profile != null) {
+                // Заполняем поля данными из профиля
                 firstName = profile.firstname.orEmpty()
                 lastName = profile.lastname.orEmpty()
                 address = profile.address.orEmpty()
@@ -101,31 +136,38 @@ fun ProfileScreen(
         }
     }
 
+    // Scaffold - базовая структура экрана с нижней навигацией
     Scaffold(
         containerColor = Color.White,
         bottomBar = { BottomBar(navController = navController, currentRoute = "profile") }
     ) { innerPadding ->
+        // Основной контейнер с учетом отступов от Scaffold
         Box(modifier = Modifier.padding(innerPadding)) {
+            // Колонка с прокруткой для всего контента
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()) // Вертикальная прокрутка
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Верхний отступ
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Верхняя панель с заголовком и кнопкой редактирования
                 TopHeader(isEditing = isEditing, onEditClick = { isEditing = !isEditing })
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Секция аватара (фото профиля)
                 AvatarSection(
                     avatarUri = avatarUri,
-                    onClick = { if (isEditing) launchCamera() }
+                    onClick = { if (isEditing) launchCamera() } // Камера доступна только в режиме редактирования
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Имя и фамилия пользователя
                 Text(
                     text = "$firstName $lastName",
                     fontSize = 20.sp,
@@ -135,35 +177,41 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Карточка со штрих-кодом
                 BarcodeCard()
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Поля профиля (динамические - редактируемые или только для чтения)
                 ProfileField("Имя", firstName, { firstName = it }, isEditing)
                 ProfileField("Фамилия", lastName, { lastName = it }, isEditing)
                 ProfileField("Адрес", address, { address = it }, isEditing)
                 ProfileField("Телефон", phone, { phone = it }, isEditing)
 
+                // Кнопка сохранения (отображается только в режиме редактирования)
                 if (isEditing) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
+                            // Сохранение изменений профиля
                             scope.launch {
                                 isLoading = true
                                 try {
+                                    // Подготовка данных для отправки
                                     val body = mapOf(
                                         "firstname" to firstName,
                                         "lastname" to lastName,
                                         "address" to address,
                                         "phone" to phone
                                     )
+                                    // Отправка запроса на обновление профиля
                                     val resp = RetrofitInstance.userManagementService.updateProfile(
                                         authHeader = "Bearer $accessToken",
                                         userIdFilter = "eq.$userId",
                                         body = body
                                     )
                                     if (resp.isSuccessful) {
-                                        isEditing = false
+                                        isEditing = false // Выход из режима редактирования при успехе
                                     } else {
                                         errorText = "Ошибка сохранения: ${resp.code()}"
                                     }
@@ -185,14 +233,16 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
+                // Нижний отступ для учета нижней навигации
                 Spacer(modifier = Modifier.height(80.dp))
             }
 
+            // Оверлей загрузки (полупрозрачный фон с индикатором)
             if (isLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.15f)),
+                        .background(Color.Black.copy(alpha = 0.15f)), // Полупрозрачный черный фон
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = Color(0xFF48B2E7))
@@ -201,6 +251,7 @@ fun ProfileScreen(
         }
     }
 
+    // Диалог ошибки (появляется при наличии errorText)
     if (errorText != null) {
         AlertDialog(
             onDismissRequest = { errorText = null },
@@ -215,11 +266,17 @@ fun ProfileScreen(
     }
 }
 
-// ---------- вспомогательные composable ----------
+// ---------- Вспомогательные composable-функции ----------
 
+/**
+ * Верхняя панель с заголовком и кнопкой редактирования/готово
+ * @param isEditing флаг режима редактирования
+ * @param onEditClick колбэк при клике на кнопку
+ */
 @Composable
 fun TopHeader(isEditing: Boolean, onEditClick: () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth()) {
+        // Заголовок по центру
         Text(
             text = "Профиль",
             fontSize = 18.sp,
@@ -228,18 +285,21 @@ fun TopHeader(isEditing: Boolean, onEditClick: () -> Unit) {
             modifier = Modifier.align(Alignment.Center)
         )
 
+        // Кнопка справа
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .size(32.dp)
                 .clip(CircleShape)
-                .background(if (isEditing) Color.Transparent else Color(0xFF48B2E7))
+                .background(if (isEditing) Color.Transparent else Color(0xFF48B2E7)) // В режиме редактирования прозрачный фон
                 .clickable { onEditClick() },
             contentAlignment = Alignment.Center
         ) {
             if (isEditing) {
+                // В режиме редактирования показываем текст "Готово"
                 Text("Готово", fontSize = 12.sp, color = Color(0xFF48B2E7), fontWeight = FontWeight.Bold)
             } else {
+                // В обычном режиме показываем иконку редактирования
                 Icon(
                     painter = painterResource(id = R.drawable.ic_edit),
                     contentDescription = "Edit",
@@ -251,24 +311,31 @@ fun TopHeader(isEditing: Boolean, onEditClick: () -> Unit) {
     }
 }
 
+/**
+ * Секция аватара пользователя
+ * @param avatarUri URI выбранного изображения (может быть null)
+ * @param onClick колбэк при клике на аватар
+ */
 @Composable
 fun AvatarSection(avatarUri: Uri?, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(100.dp)
-            .clip(CircleShape)
-            .background(Color.LightGray)
-            .clickable { onClick() },
+            .clip(CircleShape) // Круглая форма
+            .background(Color.LightGray) // Серый фон-заглушка
+            .clickable { onClick() }, // Кликабельно для выбора фото
         contentAlignment = Alignment.Center
     ) {
         if (avatarUri != null) {
+            // Если есть выбранное фото, отображаем его
             Image(
-                painter = rememberAsyncImagePainter(model = avatarUri),
+                painter = rememberAsyncImagePainter(model = avatarUri), // Coil для загрузки изображения
                 contentDescription = "Avatar",
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Crop, // Обрезка для заполнения круга
                 modifier = Modifier.fillMaxSize()
             )
         } else {
+            // Если фото нет, показываем иконку-заглушку
             Image(
                 painter = painterResource(id = R.drawable.ic_profile),
                 contentDescription = "Placeholder",
@@ -279,6 +346,9 @@ fun AvatarSection(avatarUri: Uri?, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Карточка со штрих-кодом (стилизованный элемент интерфейса)
+ */
 @Composable
 fun BarcodeCard() {
     Row(
@@ -287,6 +357,7 @@ fun BarcodeCard() {
             .height(80.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Левая часть с вертикальным текстом "Открыть"
         Box(
             modifier = Modifier
                 .width(40.dp)
@@ -297,11 +368,12 @@ fun BarcodeCard() {
                 text = "Открыть",
                 fontSize = 12.sp,
                 color = Color.Gray,
-                modifier = Modifier.rotate(-90f),
+                modifier = Modifier.rotate(-90f), // Поворот текста на -90 градусов
                 maxLines = 1
             )
         }
 
+        // Правая часть с изображением штрих-кода
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -313,12 +385,19 @@ fun BarcodeCard() {
                 painter = painterResource(id = R.drawable.ic_barcode),
                 contentDescription = "Barcode",
                 modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.FillBounds
+                contentScale = ContentScale.FillBounds // Растягивание для заполнения
             )
         }
     }
 }
 
+/**
+ * Поле профиля с заголовком и редактируемым текстом
+ * @param title заголовок поля
+ * @param value текущее значение
+ * @param onValueChange колбэк при изменении значения
+ * @param isEditing флаг режима редактирования (доступно только при true)
+ */
 @Composable
 fun ProfileField(
     title: String,
@@ -331,6 +410,7 @@ fun ProfileField(
             .fillMaxWidth()
             .padding(bottom = 16.dp)
     ) {
+        // Заголовок поля
         Text(
             text = title,
             fontSize = 14.sp,
@@ -338,25 +418,27 @@ fun ProfileField(
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
+        // Базовое текстовое поле (без Material оформления)
         BasicTextField(
             value = value,
-            onValueChange = { if (isEditing) onValueChange(it) },
-            enabled = isEditing,
+            onValueChange = { if (isEditing) onValueChange(it) }, // Изменение только в режиме редактирования
+            enabled = isEditing, // Поле активно только в режиме редактирования
             textStyle = LocalTextStyle.current.copy(
                 color = Color.Black,
                 fontSize = 16.sp
             ),
+            // Декорация поля (фон, отступы)
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFF7F7F7))
+                        .background(Color(0xFFF7F7F7)) // Светло-серый фон
                         .padding(horizontal = 16.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    innerTextField()
+                    innerTextField() // Содержимое поля
                 }
             }
         )

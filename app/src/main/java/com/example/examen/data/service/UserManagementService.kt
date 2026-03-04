@@ -58,21 +58,21 @@ interface UserManagementService {
 
     // ---------- PROFILES ----------
 
-    @Headers("apikey:$API_KEY")
+    @Headers("apikey: $API_KEY")
     @GET("rest/v1/profiles")
     suspend fun getProfile(
         @Header("Authorization") authHeader: String,
-        @Query("user_id") userIdFilter: String,
+        @Query("user_id") userIdFilter: String, // "eq.<uuid>"
         @Query("select") select: String = "*"
     ): List<ProfileDto>
 
-        @Headers("apikey: $API_KEY", "Content-Type: application/json")
-        @PATCH("rest/v1/profiles")  // Измените с PUT на PATCH
-        suspend fun updateProfile(
-            @Header("Authorization") authHeader: String,
-            @Query("user_id") userIdFilter: String,
-            @Body body: Map<String, String>
-        ): Response<Unit>
+    @Headers("apikey: $API_KEY", "Content-Type: application/json")
+    @PUT("rest/v1/profiles")
+    suspend fun updateProfile(
+        @Header("Authorization") authHeader: String,
+        @Query("user_id") userIdFilter: String,
+        @Body body: Map<String, Any?>
+    ): Response<Unit>
 
     // ---------- PRODUCTS ----------
 
@@ -81,7 +81,7 @@ interface UserManagementService {
     suspend fun getProducts(
         @Header("Authorization") authHeader: String,
         @Query("select") select: String = "*"
-    ): List<com.example.examen.data.service.ProductDto>
+    ): List<ProductDto>
 
     // ---------- FAVOURITE ----------
 
@@ -91,7 +91,7 @@ interface UserManagementService {
         @Header("Authorization") authHeader: String,
         @Query("user_id") userIdFilter: String, // "eq.<uuid>"
         @Query("select") select: String = "id,product_id,user_id"
-    ): List<com.example.examen.data.service.FavouriteDto>
+    ): List<FavouriteDto>
 
     @Headers("apikey: $API_KEY", "Content-Type: application/json")
     @POST("rest/v1/favourite")
