@@ -1,5 +1,6 @@
 package com.example.examen.ui.view
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -147,6 +148,7 @@ data class OnboardPageData(
     val isFirstPage: Boolean
 )
 
+@SuppressLint("Range")
 @Composable
 fun OnboardPage(
     data: OnboardPageData
