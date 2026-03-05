@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.upsidorkin"
+    namespace = "com.example.examen"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.upsidorkin"
+        applicationId = "com.example.examen"
         minSdk = 33
         targetSdk = 36
         versionCode = 1
